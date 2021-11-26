@@ -30,13 +30,13 @@ export default function Header(): JSX.Element {
                 </nav>
                 <ul className="cards-brands">
                     <li>
-                        <Link to="magic#">Magic</Link>
+                        <Link to="cards/magic#">Magic</Link>
                     </li>
                     <li>
-                        <Link to="pokemon">Pokémon</Link>
+                        <Link to="cards/pokemon">Pokémon</Link>
                     </li>
                     <li>
-                        <Link to="yugioh">Yu-Gi-Oh!</Link>
+                        <Link to="cards/yugioh">Yu-Gi-Oh!</Link>
                     </li>
                 </ul>
             </MenuContainer>

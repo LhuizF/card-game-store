@@ -19,13 +19,13 @@ export const MainHomeDisplay = styled.main`
         background-color: rgba(24, 24, 24, 0.8);
         transition: background-color 500ms ease-in-out;
 
-        &:hover {
+        /* &:hover {
             background-color: transparent;
 
             img {
                 transform: scale(1.1);
             }
-        }
+        } */
     }
 
     img {
