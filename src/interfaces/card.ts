@@ -38,7 +38,7 @@ export class CardMagic implements Card, CardMagicProtocol {
         return priceBrl.toFixed(2);
     }
     getImage(): string {
-        if (this.layout === 'transform') {
+        if (!this.image_uris) {
             return this.card_faces[0].image_uris.border_crop;
         }
 
