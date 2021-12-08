@@ -9,9 +9,11 @@ export interface Card {
 export interface CardMagicProtocol {
     id: string;
     name: string;
+    printed_name: string;
     type_line: string;
     prices: Prices;
     layout: string;
+    rarity: 'common' | 'uncommon' | 'rare' | 'mythic';
     card_faces?: {
         image_uris: Images;
     }[];
@@ -27,3 +29,5 @@ export type Prices = {
 export type Images = {
     border_crop: string;
 };
+
+//common rare uncommon mythic

@@ -1,10 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
-import { CardsList } from './styled';
 import { CardMagic } from '../../interfaces/card';
 
-import { MdOutlineAddShoppingCart } from 'react-icons/md';
+import { PageControl, ButtonNavigate } from './styled';
+import {
+    MdOutlineAddShoppingCart,
+    MdNavigateNext,
+    MdNavigateBefore
+} from 'react-icons/md';
+
+import MainContainer from '../../components/containers/MainContainer';
+import CardContainer from '../../components/containers/CardContainer';
+import ButtonIcon from '../../components/containers/Button';
 
 // usar class abstrata
 interface Expansion {
@@ -17,7 +25,7 @@ interface Expansion {
     search_uri: string;
     set_type: string;
     next_page: string;
-    numID: number;
+    digital: boolean;
 }
 
 interface CardLIst {
@@ -33,113 +41,125 @@ export default function DisplayCards(): JSX.Element {
     const [cardsList, setCardsList] = useState<CardLIst>(); // lista de cartas da expansão atual
     const [page, setPage] = useState(1); // numero atual da pagina sendo exibida
 
+    const getPage = useCallback(
+        async (code: string) => {
+            const url = `https://api.scryfall.com/cards/search?format=json&include_extras=false&include_multilingual=false&order=set&page=${page}&q=e%3A${code}`;
+            try {
+                const { data } = await axios.get(
+                    url + '+lang%3Apt&unique=prints'
+                );
+                setCardsList(data);
+            } catch (e) {
+                const { data } = await axios.get(url);
+                setCardsList(data);
+            }
+        },
+        [page]
+    );
+
     useEffect(() => {
         async function getData() {
             const { data } = await axios.get('https://api.scryfall.com/sets');
 
             const expansions: Expansion[] = data.data.filter(
                 (set: Expansion) => {
-                    return set.set_type === 'expansion' && set.card_count > 0;
+                    return (
+                        set.set_type === 'expansion' &&
+                        set.card_count > 0 &&
+                        set.digital == false
+                    );
                 }
             );
 
-            expansions.forEach(function (a: Expansion, b: number): void {
-                a.numID = b;
-            });
             setExpansions(expansions);
-
-            if (expansions === undefined) return;
-            const url = expansions[numId].search_uri;
-            nextPage(url);
+            getPage(expansions[numId].code);
         }
 
         getData();
-    }, [numId]);
-
-    const nextPage = async (url: string) => {
-        const { data } = await axios.get(url);
-        setCardsList(data);
-    };
-
-    const prevPage = async () => {
-        const { data } = await axios.get(
-            `https://api.scryfall.com/cards/search?format=json&include_extras=false&include_multilingual=false&order=set&page=${
-                page - 1
-            }&q=e%3A${expansions ? expansions[numId].code : null}&unique=prints`
-        );
-        setCardsList(data);
-    };
+    }, [getPage, numId]);
 
     if (cardsList === undefined || expansions === undefined) return <></>;
 
     return (
-        <CardsList>
-            <div>
-                <h2>Selecionar expansão</h2>
-                <select
-                    onChange={(e) => {
-                        setPage(1);
-                        setNumId(e.target.selectedIndex);
-                    }}
-                >
-                    {expansions.map((set: Expansion) => (
-                        <option key={set.id} value={set.numID}>
-                            {set.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+        <MainContainer>
+            <>
+                <div>
+                    <h2>Selecionar expansão</h2>
+                    <select
+                        onChange={(e) => {
+                            setPage(1);
+                            setNumId(e.target.selectedIndex);
+                        }}
+                    >
+                        {expansions.map((set: Expansion) => (
+                            <option key={set.id}>{set.name}</option>
+                        ))}
+                    </select>
+                </div>
 
-            <div className="cards-container">
-                {cardsList.data.map((card: CardMagic) => {
-                    const newCard = new CardMagic(card);
+                <PageControl>
+                    <ButtonNavigate>
+                        <button
+                            onClick={() => {
+                                if (page === 1) return;
+                                window.scrollTo(0, 0);
+                                setPage(page - 1);
+                            }}
+                        >
+                            anterior
+                        </button>
+                    </ButtonNavigate>
 
-                    return (
-                        <div className="card" key={newCard.getId()}>
-                            <div className="card-img-container">
-                                <img src={newCard.getImage()} alt="" />
-                            </div>
-                            <h3>{newCard.getName()}</h3>
-                            <div className="card-details">
-                                {/* <p>tipo: {newCard.getType()}</p> */}
-                                <p>Price: {newCard.getPrice()}</p>
-                                <img
-                                    src={expansions[numId].icon_svg_uri}
-                                    alt=""
-                                />
-                            </div>
-                            <div className="btn-add-cart">
-                                <button>Adicionar ao carrinho</button>
-                                <MdOutlineAddShoppingCart size={24} />
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                    <p>{page}</p>
 
-            <div className="pages-controles">
-                <button
-                    onClick={() => {
-                        if (page === 1) return;
-                        window.scrollTo(0, 0);
-                        setPage(page - 1);
-                        prevPage();
-                    }}
-                >
-                    anterior
-                </button>
-                <p>{page}</p>
-                <button
-                    onClick={() => {
-                        if (!cardsList.has_more) return;
-                        window.scrollTo(0, 0);
-                        setPage(page + 1);
-                        nextPage(cardsList.next_page);
-                    }}
-                >
-                    próximo
-                </button>
-            </div>
-        </CardsList>
+                    <ButtonNavigate>
+                        <button
+                            onClick={() => {
+                                if (!cardsList.has_more) return;
+                                window.scrollTo(0, 0);
+                                setPage(page + 1);
+                            }}
+                        >
+                            próximo
+                        </button>
+                    </ButtonNavigate>
+                </PageControl>
+
+                <CardContainer>
+                    <>
+                        {cardsList.data.map((card: CardMagic) => {
+                            const newCard = new CardMagic(card);
+
+                            return (
+                                <div className="card" key={newCard.getId()}>
+                                    <div className="card-img-container">
+                                        <img src={newCard.getImage()} alt="" />
+                                    </div>
+                                    <h3>{newCard.getName()}</h3>
+                                    <div className="card-details">
+                                        {/* <p>tipo: {newCard.getType()}</p> */}
+                                        <p>R$:{newCard.getPrice()}</p>
+                                        <img
+                                            src={expansions[numId].icon_svg_uri}
+                                            alt=""
+                                        />
+                                    </div>
+                                    <ButtonIcon color="#d9534f">
+                                        <button
+                                            onClick={() => console.log('aqui')}
+                                        >
+                                            Adicionar ao carrinho
+                                        </button>
+                                        <MdOutlineAddShoppingCart size={24} />
+                                    </ButtonIcon>
+                                </div>
+                            );
+                        })}
+                    </>
+                </CardContainer>
+            </>
+        </MainContainer>
     );
 }
+
+//
