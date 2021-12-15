@@ -1,6 +1,11 @@
-import { Card, CardMagicProtocol, Prices, Images } from './card-protocol';
+import {
+    CardProtocol,
+    CardMagicProtocol,
+    Prices,
+    Images
+} from './card-protocol';
 
-export class CardMagic implements Card, CardMagicProtocol {
+class CardMagic implements CardProtocol, CardMagicProtocol {
     id: string;
     name: string;
     printed_name: string;
@@ -53,3 +58,5 @@ export class CardMagic implements Card, CardMagicProtocol {
         return this.image_uris.border_crop;
     }
 }
+
+export class Card extends CardMagic {}
