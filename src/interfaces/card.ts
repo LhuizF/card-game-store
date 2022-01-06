@@ -1,11 +1,12 @@
-import {
-    CardProtocol,
-    CardMagicProtocol,
-    Prices,
-    Images
-} from './card-protocol';
+export interface CardProtocol {
+    getId(): string;
+    getName(): string;
+    getType(): string;
+    getPrice(): string;
+    getImage(): string;
+}
 
-class CardMagic implements CardProtocol, CardMagicProtocol {
+export class CardMagic implements CardProtocol, CardMagicProtocol {
     id: string;
     name: string;
     printed_name: string;
@@ -59,4 +60,42 @@ class CardMagic implements CardProtocol, CardMagicProtocol {
     }
 }
 
-export class Card extends CardMagic {}
+export class CardPokemon implements CardPokemon, CardPokemonProtocol {
+    id: string;
+    name: string;
+    supertype: string;
+    set: SetPokemon;
+    number: string;
+    rarity: string;
+    images: { small: string; large: string };
+    cardmarket: cardmarket;
+
+    constructor(card: CardPokemon) {
+        this.id = card.id;
+        this.name = card.name;
+        this.supertype = card.supertype;
+        this.set = card.set;
+        this.number = card.number;
+        this.rarity = card.rarity;
+        this.images = card.images;
+        this.cardmarket = card.cardmarket;
+    }
+
+    getId(): string {
+        return this.id;
+    }
+    getName(): string {
+        return this.name;
+    }
+    getType(): string {
+        return this.supertype;
+    }
+    getPrice(): string {
+        return this.cardmarket?.prices
+            ? `${this.cardmarket.prices.averageSellPrice}`
+            : '0,00';
+    }
+    getImage(): string {
+        return this.images.large;
+    }
+}

@@ -1,6 +1,4 @@
-import { Card } from '../../interfaces/card';
-
-export function addItem(payload: Card) {
+export function addItem(payload: any) {
     return {
         type: 'ADD_ITEM',
         payload

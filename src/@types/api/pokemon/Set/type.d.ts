@@ -1,4 +1,4 @@
-interface setPokemon {
+interface SetPokemon {
     id: string;
     images: { symbol: string; logo: string };
     legalities: { unlimited: string; standard?: string; expanded?: string };

@@ -1,4 +1,4 @@
-interface setMagicProtocol {
+interface SetMagic {
     card_count: number;
     code: string;
     icon_svg_uri: string;

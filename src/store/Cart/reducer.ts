@@ -1,16 +1,14 @@
-import { Card } from '../../interfaces/card';
-
 const inicialState: InicialState = {
     listCard: []
 };
 
 interface InicialState {
-    listCard: Card[];
+    listCard: any[];
 }
 
 interface Action {
     type: string;
-    payload?: Card;
+    payload?: any;
 }
 
 function CartReducer(state = inicialState, action: Action) {

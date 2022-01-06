@@ -1,12 +1,4 @@
-export interface CardProtocol {
-    getId(): string;
-    getName(): string;
-    getType(): string;
-    getPrice(): string;
-    getImage(): string;
-}
-
-export interface CardMagicProtocol {
+interface CardMagicProtocol {
     id: string;
     name: string;
     printed_name: string;
@@ -20,14 +12,12 @@ export interface CardMagicProtocol {
     image_uris?: Images;
 }
 
-export type Prices = {
+type Prices = {
     eur: string;
     usd: string;
     usd_foil: string;
 };
 
-export type Images = {
+type Images = {
     border_crop: string;
 };
-
-//common rare uncommon mythic

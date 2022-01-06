@@ -1,4 +1,3 @@
-// set global
 export interface SetCard {
     getCode(): string;
     getName(): string;
@@ -6,7 +5,7 @@ export interface SetCard {
     getReleased(): string;
 }
 
-export class SetMagic implements SetCard, setMagicProtocol {
+export class SetMagic implements SetCard, SetMagic {
     card_count: number;
     code: string;
     icon_svg_uri: string;
@@ -45,4 +44,49 @@ export class SetMagic implements SetCard, setMagicProtocol {
     }
 }
 
-export class Set extends SetMagic {}
+export class SetPokemon implements SetCard, SetPokemon {
+    id: string;
+    images: { symbol: string; logo: string };
+    legalities: {
+        unlimited: string;
+        standard?: string | undefined;
+        expanded?: string | undefined;
+    };
+    name: string;
+    printedTotal: number;
+    ptcgoCode: string;
+    releaseDate: string;
+    series: string;
+    total: number;
+    updatedAt: string;
+
+    constructor(set: SetPokemon) {
+        this.id = set.id;
+        this.images = set.images;
+        this.legalities = set.legalities;
+        this.name = set.name;
+        this.printedTotal = set.printedTotal;
+        this.ptcgoCode = set.ptcgoCode;
+        this.releaseDate = set.releaseDate;
+        this.series = set.series;
+        this.total = set.total;
+        this.updatedAt = set.updatedAt;
+    }
+
+    getCode(): string {
+        return this.id;
+    }
+
+    getName(): string {
+        return this.name;
+    }
+
+    getIcon(): string {
+        return this.images.symbol;
+    }
+
+    getReleased(): string {
+        const data = this.releaseDate;
+        return data;
+    }
+}

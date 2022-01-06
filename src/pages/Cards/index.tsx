@@ -3,7 +3,6 @@ import { MdOutlineAddShoppingCart } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { Card } from '../../interfaces/card';
 import { PageControl, ButtonNavigate } from './styled';
 import MainContainer from '../../components/containers/MainContainer';
 import CardContainer from '../../components/containers/CardContainer';
@@ -13,25 +12,30 @@ import { addItem } from '../../store/Cart/actions';
 
 import useApiReq from '../../hooks/useApiReq';
 
-import { Set } from '../../interfaces/Set';
+import { SetMagic, SetPokemon } from '../../interfaces/Set';
+import { CardMagic, CardPokemon } from '../../interfaces/Card';
+
+type SetTypes = SetPokemon | SetMagic;
+type CardTypes = CardPokemon | CardMagic;
 
 export default function DisplayCards(): JSX.Element {
     const [page, setPage] = useState(1);
     const [idSet, setIdSet] = useState(0);
-    const [currentSet, setCurrentSet] = useState<Set>();
+    const [currentSet, setCurrentSet] = useState<SetTypes>();
 
     const dispatch = useDispatch();
 
     const { tcg } = useParams();
 
-    const { sets, cardsList, getCardsMagic } = useApiReq(tcg);
+    const { sets, cardsList, getCardsMagic, setNewTcg } = useApiReq();
 
     useEffect(() => {
         if (sets.length <= 0) return;
 
-        setCurrentSet(new Set(sets[idSet]));
+        setCurrentSet(sets[idSet]);
     }, [sets, idSet]);
 
+    // melhorar
     if (
         cardsList === undefined ||
         sets === undefined ||
@@ -48,14 +52,18 @@ export default function DisplayCards(): JSX.Element {
                         onChange={(e) => {
                             setPage(1);
                             setIdSet(e.target.selectedIndex);
-                            getCardsMagic(sets[e.target.selectedIndex].code, 1);
+                            // aqui
+                            setNewTcg(
+                                sets[e.target.selectedIndex].getCode(),
+                                1,
+                                tcg
+                            );
                         }}
                     >
-                        {sets.map((set: Set) => {
-                            const newSet = new Set(set);
+                        {sets.map((set: SetMagic | SetPokemon) => {
                             return (
-                                <option key={newSet.getCode()}>
-                                    {newSet.getName()}
+                                <option key={set.getCode()}>
+                                    {set.getName()}
                                 </option>
                             );
                         })}
@@ -70,7 +78,8 @@ export default function DisplayCards(): JSX.Element {
                                 if (page === 1) return;
                                 window.scrollTo(0, 0);
                                 setPage(page - 1);
-                                getCardsMagic(sets[idSet].code, page - 1);
+                                // aqui
+                                getCardsMagic(sets[idSet].getCode(), page - 1);
                             }}
                         >
                             anterior
@@ -82,10 +91,10 @@ export default function DisplayCards(): JSX.Element {
                     <ButtonNavigate>
                         <button
                             onClick={() => {
-                                if (!cardsList.has_more) return;
+                                // aqui
                                 window.scrollTo(0, 0);
                                 setPage(page + 1);
-                                getCardsMagic(sets[idSet].code, page + 1);
+                                getCardsMagic(sets[idSet].getCode(), page + 1);
                             }}
                         >
                             próximo
@@ -95,40 +104,29 @@ export default function DisplayCards(): JSX.Element {
 
                 <CardContainer>
                     <>
-                        {cardsList.data.map((card: Card) => {
-                            const newCard = new Card(card);
-
-                            return (
-                                <div className="card" key={newCard.getId()}>
-                                    <div className="card-img-container">
-                                        <img src={newCard.getImage()} alt="" />
-                                    </div>
-                                    <h3>{newCard.getName()}</h3>
-                                    <div className="card-details">
-                                        <p>R$:{newCard.getPrice()}</p>
-                                        <img
-                                            src={currentSet.getIcon()}
-                                            alt=""
-                                        />
-                                    </div>
-                                    <ButtonIcon color="#d9534f">
-                                        <button
-                                            onClick={() =>
-                                                dispatch(addItem(newCard))
-                                            }
-                                        >
-                                            Adicionar ao carrinho
-                                        </button>
-                                        <MdOutlineAddShoppingCart size={24} />
-                                    </ButtonIcon>
+                        {cardsList.map((card: CardTypes) => (
+                            <div className="card" key={card.getId()}>
+                                <div className="card-img-container">
+                                    <img src={card.getImage()} alt="" />
                                 </div>
-                            );
-                        })}
+                                <h3>{card.getName()}</h3>
+                                <div className="card-details">
+                                    <p>R$:{card.getPrice()}</p>
+                                    <img src={currentSet.getIcon()} alt="" />
+                                </div>
+                                <ButtonIcon color="#d9534f">
+                                    <button
+                                        onClick={() => dispatch(addItem(card))}
+                                    >
+                                        Adicionar ao carrinho
+                                    </button>
+                                    <MdOutlineAddShoppingCart size={24} />
+                                </ButtonIcon>
+                            </div>
+                        ))}
                     </>
                 </CardContainer>
             </>
         </MainContainer>
     );
 }
-
-//
